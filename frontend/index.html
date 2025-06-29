@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Secure File Upload</title>
+  <style>
+    body { font-family: Arial; padding: 2rem; background: #f8f9fa; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    input, button { margin-top: 1rem; width: 100%; padding: 10px; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Upload File Securely</h2>
+    <input type="file" id="fileInput" />
+    <button onclick="uploadFile()">Upload</button>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    async function uploadFile() {
+      const fileInput = document.getElementById('fileInput');
+      const status = document.getElementById('status');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        status.innerText = "Please select a file.";
+        return;
+      }
+
+      const functionUrl = "https://<YOUR_FUNCTION_NAME>.azurewebsites.net/api/generate_sas_upload?filename=" + encodeURIComponent(file.name);
+
+      try {
+        // Get SAS URL from Azure Function
+        const response = await fetch(functionUrl);
+        const sasUrl = await response.text();
+
+        if (!response.ok) {
+          throw new Error(sasUrl);
+        }
+
+        // Upload to Blob
+        const uploadResponse = await fetch(sasUrl, {
+          method: 'PUT',
+          headers: {
+            'x-ms-blob-type': 'BlockBlob',
+            'Content-Type': file.type
+          },
+          body: file
+        });
+
+        if (uploadResponse.ok) {
+          status.innerText = `✅ File uploaded successfully!`;
+        } else {
+          status.innerText = `❌ Upload failed: ${uploadResponse.statusText}`;
+        }
+      } catch (error) {
+        status.innerText = `❌ Error: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
