@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Download Shared File</title>
+  <style>
+    body { font-family: Arial; padding: 2rem; background: #f0f0f0; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    input, button { margin-top: 1rem; width: 100%; padding: 10px; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Download a Shared File</h2>
+    <input type="text" id="filename" placeholder="Enter filename with extension" />
+    <button onclick="getDownloadUrl()">Get Download Link</button>
+    <p id="status"></p>
+    <a id="downloadLink" href="#" download style="display:none;">Click to Download</a>
+  </div>
+
+  <script>
+    async function getDownloadUrl() {
+      const fileName = document.getElementById('filename').value;
+      const status = document.getElementById('status');
+      const link = document.getElementById('downloadLink');
+
+      if (!fileName) {
+        status.innerText = "❗ Please enter a file name.";
+        return;
+      }
+
+      const functionUrl = `https://<YOUR_FUNCTION_APP>.azurewebsites.net/api/generate_sas_download?filename=${encodeURIComponent(fileName)}`;
+
+      try {
+        const response = await fetch(functionUrl);
+        const sasUrl = await response.text();
+
+        if (!response.ok) throw new Error(sasUrl);
+
+        link.href = sasUrl;
+        link.style.display = 'inline-block';
+        link.innerText = "✅ Click here to download";
+        status.innerText = "";
+      } catch (error) {
+        link.style.display = 'none';
+        status.innerText = `❌ Error: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
