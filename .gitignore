@@ -1,0 +1,5 @@
+# Ignore unnecessary files/folders
+.deployment
+.vscode/
+frontend.zip
+functions/
