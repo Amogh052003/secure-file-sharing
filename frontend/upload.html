@@ -19,7 +19,7 @@
 <ul id="file-list">
   <li>
     <span>Screenshot (112).png</span>
-    <button onclick="downloadFile('Screenshot (112).png')">Download</button>
+    <button onclick="downloadFile('test.txt')">Download</button>
   </li>
   <!-- Add more files similarly or generate this dynamically -->
 </ul>
@@ -70,16 +70,23 @@
         const response = await fetch(
           `https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_download?fileName=${encodeURIComponent(fileName)}`
         );
-        const sasUrl = await response.text();
-    
-        const link = document.createElement("a");
-        link.href = sasUrl;
-        link.download = fileName;
-        link.click();
-      } catch (error) {
-        alert("Download failed.");
-        console.error(error);
-      }
+        if (!response.ok) {
+      throw new Error("Failed to get download URL");
+    }
+
+      const data = await response.json();
+      const sasUrl = data.url;
+  
+      // Trigger the download by creating a temporary link
+      const link = document.createElement("a");
+      link.href = sasUrl;
+      link.download = fileName; // Suggests a name, though Azure may override
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Failed to download file.");
     }
   </script>
 </body>
