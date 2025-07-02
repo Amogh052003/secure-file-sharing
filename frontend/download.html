@@ -68,7 +68,7 @@
       }
 
       try {
-        const response = await fetch(`https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_download?fileName=${encodeURIComponent(fileName)}`);
+        const response = await fetch(`https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_download?filename=${encodeURIComponent(fileName)}`);
 
         if (!response.ok) throw new Error("Failed to get download URL");
 
