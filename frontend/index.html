@@ -7,82 +7,81 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #36d1dc, #5b86e5);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       display: flex;
       justify-content: center;
       align-items: center;
+      overflow: hidden;
     }
 
     .card {
-      background: white;
+      background: #fff;
       padding: 3rem;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       text-align: center;
-      width: 100%;
       max-width: 400px;
+      width: 90%;
+      animation: fadeIn 1s ease-out;
     }
 
-    h2 {
+    h1 {
       margin-bottom: 2rem;
+      font-size: 1.8rem;
       color: #333;
+      animation: slideDown 0.8s ease-out;
     }
 
-    button {
+    .btn {
+      display: block;
       width: 100%;
-      padding: 12px;
-      margin-top: 1rem;
-      font-size: 1rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      font-size: 1.1rem;
       border: none;
-      border-radius: 8px;
-      background-color: #007bff;
+      border-radius: 10px;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
       color: white;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: popIn 1s ease forwards;
     }
 
-    button:hover {
-      background-color: #0056b3;
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      margin-top: 1rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
 
-    .section {
-      margin-top: 1.5rem;
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #666;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>Welcome to Secure File Sharing</h2>
-
-    <button onclick="location.href='upload.html'">Upload a File</button>
-
-    <div class="section">
-      <input type="text" id="filenameInput" placeholder="Enter filename to download (e.g. report.pdf)" />
-      <button onclick="redirectToDownload()">Download a File</button>
-    </div>
+    <h1>Welcome to Secure File Sharing</h1>
+    <button class="btn" onclick="window.location.href='upload.html'">Upload a File</button>
+    <button class="btn" onclick="window.location.href='download.html'">Download a File</button>
+    <div class="footer">Secure. Simple. Fast.</div>
   </div>
-
-  <script>
-    function redirectToDownload() {
-      const fileName = document.getElementById("filenameInput").value.trim();
-      if (!fileName) {
-        alert("Please enter a filename to download.");
-        return;
-      }
-      window.location.href = `download.html?filename=${encodeURIComponent(fileName)}`;
-    }
-  </script>
 </body>
 </html>
