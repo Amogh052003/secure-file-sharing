@@ -23,7 +23,7 @@
       color: #333;
     }
 
-    input, button {
+    input, button, textarea {
       margin-top: 1rem;
       width: 100%;
       padding: 10px;
@@ -36,6 +36,21 @@
       color: #007bff;
     }
 
+    #linkBox {
+      margin-top: 1.5rem;
+      display: none;
+    }
+
+    #sasLink {
+      width: 100%;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      background: #f8f9fa;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
     a {
       display: inline-block;
       margin-top: 2rem;
@@ -46,6 +61,20 @@
     a:hover {
       text-decoration: underline;
     }
+
+    .copy-btn {
+      margin-top: 0.5rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
@@ -54,6 +83,13 @@
     <input type="file" id="fileInput" />
     <button onclick="uploadFile()">Upload</button>
     <p id="status"></p>
+
+    <div id="linkBox">
+      <label for="sasLink">📎 Shareable Download Link:</label>
+      <textarea id="sasLink" rows="3" readonly></textarea>
+      <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+    </div>
+
     <a href="index.html">⬅ Back to Home</a>
   </div>
 
@@ -61,8 +97,10 @@
     async function uploadFile() {
       const fileInput = document.getElementById('fileInput');
       const status = document.getElementById('status');
-      const file = fileInput.files[0];
+      const linkBox = document.getElementById('linkBox');
+      const sasLink = document.getElementById('sasLink');
 
+      const file = fileInput.files[0];
       if (!file) {
         status.innerText = "Please select a file.";
         return;
@@ -72,11 +110,12 @@
 
       try {
         const response = await fetch(functionUrl);
-        const sasUrl = await response.text();
+        const result = await response.json(); // NEW: parse JSON response
 
-        if (!response.ok) throw new Error(sasUrl);
+        if (!response.ok || !result.url) throw new Error("Failed to get SAS URL");
 
-        const uploadResponse = await fetch(sasUrl, {
+        // Upload to blob
+        const uploadResponse = await fetch(result.url, {
           method: 'PUT',
           headers: {
             'x-ms-blob-type': 'BlockBlob',
@@ -87,12 +126,24 @@
 
         if (uploadResponse.ok) {
           status.innerText = `✅ File "${file.name}" uploaded successfully.`;
+          sasLink.value = result.url;
+          linkBox.style.display = "block";
         } else {
           status.innerText = `❌ Upload failed: ${uploadResponse.statusText}`;
+          linkBox.style.display = "none";
         }
       } catch (error) {
         status.innerText = `❌ Error: ${error.message}`;
+        linkBox.style.display = "none";
       }
+    }
+
+    function copyLink() {
+      const sasLink = document.getElementById("sasLink");
+      sasLink.select();
+      sasLink.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(sasLink.value);
+      alert("🔗 Link copied to clipboard!");
     }
   </script>
 </body>
