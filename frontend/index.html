@@ -3,9 +3,48 @@
 <head>
   <title>Secure File Upload</title>
   <style>
-    body { font-family: Arial; padding: 2rem; background: #f8f9fa; }
-    .container { max-width: 600px; margin: auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
-    input, button { margin-top: 1rem; width: 100%; padding: 10px; font-size: 1rem; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f8f9fa;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+
+    input, button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+    }
+
+    #file-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #file-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    #file-list button {
+      width: auto;
+      padding: 5px 10px;
+    }
   </style>
 </head>
 <body>
@@ -15,14 +54,18 @@
     <button onclick="uploadFile()">Upload</button>
     <p id="status"></p>
   </div>
-  <h3>Download Files</h3>
-<ul id="file-list">
-  <li>
-    <span>Screenshot (112).png</span>
-    <button onclick="downloadFile('test.txt')">Download</button>
-  </li>
-  <!-- Add more files similarly or generate this dynamically -->
-</ul>
+
+  <div class="container">
+    <h3>Download Files</h3>
+    <ul id="file-list">
+      <li>
+        <span>Screenshot (112).png</span>
+        <button onclick="downloadFile('test.txt')">Download</button>
+      </li>
+      <!-- You can dynamically add more files here later -->
+    </ul>
+  </div>
+
   <script>
     async function uploadFile() {
       const fileInput = document.getElementById('fileInput');
@@ -45,7 +88,7 @@
           throw new Error(sasUrl);
         }
 
-        // Upload to Blob
+        // Upload file to blob storage using SAS URL
         const uploadResponse = await fetch(sasUrl, {
           method: 'PUT',
           headers: {
@@ -70,23 +113,25 @@
         const response = await fetch(
           `https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_download?fileName=${encodeURIComponent(fileName)}`
         );
-        if (!response.ok) {
-      throw new Error("Failed to get download URL");
-    }
 
-      const data = await response.json();
-      const sasUrl = data.url;
-  
-      // Trigger the download by creating a temporary link
-      const link = document.createElement("a");
-      link.href = sasUrl;
-      link.download = fileName; // Suggests a name, though Azure may override
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Download error:", error);
-      alert("Failed to download file.");
+        if (!response.ok) {
+          throw new Error("Failed to get download URL");
+        }
+
+        const data = await response.json();
+        const sasUrl = data.url;
+
+        // Trigger download
+        const link = document.createElement("a");
+        link.href = sasUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Download error:", error);
+        alert("Failed to download file.");
+      }
     }
   </script>
 </body>
