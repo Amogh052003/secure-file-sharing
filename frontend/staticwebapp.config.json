@@ -1,1 +1,19 @@
-{"routes":[{"route":"/upload","allowedRoles":["authenticated"]},{"route":"/download","allowedRoles":["authenticated"]},{"route":"/","serve":"/index.html"}],"globalHeaders":{"X-Frame-Options":"DENY"}}
+{
+  "routes": [
+    {
+      "route": "/upload.html",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/download.html",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/",
+      "serve": "/index.html"
+    }
+  ],
+  "globalHeaders": {
+    "X-Frame-Options": "DENY"
+  }
+}
