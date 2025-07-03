@@ -88,5 +88,18 @@
     <button class="btn" onclick="window.location.href='download.html'">Download a File</button>
     <div class="footer">Secure. Simple. Fast.</div>
   </div>
+  <script>
+  async function showUser() {
+    try {
+      const res = await fetch("/.auth/me");
+      const data = await res.json();
+      const user = data[0]?.userDetails || "Anonymous";
+      document.getElementById("userInfo").textContent = `👤 Logged in as: ${user}`;
+    } catch {
+      document.getElementById("userInfo").textContent = "Not logged in";
+    }
+  }
+  showUser();
+</script>
 </body>
 </html>
