@@ -1,12 +1,16 @@
 {
   "routes": [
     {
-      "route": "/upload.html",
+      "route": "/upload",
       "allowedRoles": ["authenticated"]
     },
     {
-      "route": "/download.html",
+      "route": "/download",
       "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/",
+      "serve": "/index.html"
     }
   ],
   "auth": {
@@ -17,5 +21,8 @@
         }
       }
     }
+  },
+  "globalHeaders": {
+    "X-Frame-Options": "DENY"
   }
 }
