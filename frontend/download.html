@@ -100,6 +100,7 @@
   <div class="navbar">📂 Secure File Manager</div>
   <div class="container">
     <h2>Available Files</h2>
+    <input type="text" id="searchInput" placeholder="🔍 Search files..." onkeyup="filterFiles()" style="width: 100%; padding: 10px; font-size: 1rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 6px;" />
     <table id="fileTable">
       <thead>
         <tr>
@@ -151,7 +152,20 @@
         tableBody.innerHTML = "<tr><td colspan='2'>Error loading files</td></tr>";
       }
     }
-
+   async function filterFiles() {
+      const input = document.getElementById("searchInput");
+      const filter = input.value.toLowerCase();
+      const table = document.getElementById("fileTable");
+      const rows = table.getElementsByTagName("tr");
+    
+      for (let i = 1; i < rows.length; i++) {
+        const td = rows[i].getElementsByTagName("td")[0];
+        if (td) {
+          const txtValue = td.textContent || td.innerText;
+          rows[i].style.display = txtValue.toLowerCase().includes(filter) ? "" : "none";
+        }
+      }
+    }
     async function downloadFile(fileName) {
       try {
         const response = await fetch(`https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_download?filename=${encodeURIComponent(fileName)}`);
