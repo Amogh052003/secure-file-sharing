@@ -99,7 +99,7 @@
       status.textContent = "Requesting upload URL...";
 
       try {
-        const res = await fetch(`/api/generate_sas_upload?filename=${encodeURIComponent(file.name)}`);
+        const res = await fetch(`https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_upload?filename=${encodeURIComponent(file.name)}`);
         const data = await res.json();
 
         const upload = await fetch(data.url, {
