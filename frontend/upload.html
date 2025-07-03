@@ -1,63 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Upload File | Secure Sharing</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: #333;
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      padding: 2rem;
     }
 
-    .card {
-      background: #fff;
-      padding: 2.5rem;
-      border-radius: 16px;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      animation: fadeIn 0.6s ease-out;
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     }
 
     h2 {
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    input[type="file"] {
-      width: 100%;
       margin-bottom: 1rem;
+      color: #333;
     }
 
-    button {
+    input, button, textarea {
+      margin-top: 1rem;
       width: 100%;
-      padding: 0.75rem;
+      padding: 10px;
       font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: #0056b3;
     }
 
     #status {
       margin-top: 1rem;
-      font-weight: 500;
+      font-weight: bold;
       color: #007bff;
-      text-align: center;
     }
 
     #linkBox {
@@ -65,57 +41,45 @@
       display: none;
     }
 
-    label {
-      font-weight: 500;
-    }
-
-    textarea {
+    #sasLink {
       width: 100%;
-      margin-top: 0.5rem;
+      padding: 10px;
       font-family: monospace;
       font-size: 0.9rem;
       background: #f8f9fa;
       border: 1px solid #ccc;
       border-radius: 6px;
-      padding: 10px;
     }
 
-    .copy-btn {
-      margin-top: 0.75rem;
-      background-color: #28a745;
-    }
-
-    .copy-btn:hover {
-      background-color: #218838;
-    }
-
-    .back-link {
-      display: block;
+    a {
+      display: inline-block;
       margin-top: 2rem;
-      text-align: center;
       color: #007bff;
       text-decoration: none;
     }
 
-    .back-link:hover {
+    a:hover {
       text-decoration: underline;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .copy-btn {
+      margin-top: 0.5rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>📤 Upload File Securely</h2>
+  <div class="container">
+    <h2>Upload File Securely</h2>
     <input type="file" id="fileInput" />
     <button onclick="uploadFile()">Upload</button>
     <p id="status"></p>
@@ -126,10 +90,18 @@
       <button class="copy-btn" onclick="copyLink()">Copy Link</button>
     </div>
 
-    <a href="index.html" class="back-link">⬅ Back to Home</a>
+    <a href="index.html">⬅ Back to Home</a>
   </div>
 
   <script>
+    async function checkLogin() {
+      const res = await fetch("/.auth/me");
+      const data = await res.json();
+      if (!data[0]?.userId) {
+        window.location.href = "/.auth/login/github";  // Or use /aad, /google, etc.
+      }
+    }
+
     async function uploadFile() {
       const fileInput = document.getElementById('fileInput');
       const status = document.getElementById('status');
@@ -145,9 +117,12 @@
       const functionUrl = "https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_upload?filename=" + encodeURIComponent(file.name);
 
       try {
-        const response = await fetch(functionUrl);
-        const result = await response.json();
+        const response = await fetch(functionUrl, {
+          method: 'GET',
+          credentials: 'include'  // ✅ Send identity cookie to Function App
+        });
 
+        const result = await response.json();
         if (!response.ok || !result.url) throw new Error("Failed to get SAS URL");
 
         const uploadResponse = await fetch(result.url, {
@@ -180,6 +155,8 @@
       navigator.clipboard.writeText(sasLink.value);
       alert("🔗 Link copied to clipboard!");
     }
+
+    window.onload = checkLogin;
   </script>
 </body>
 </html>
