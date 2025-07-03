@@ -118,7 +118,7 @@
 
     async function downloadFile(fileName) {
       try {
-        const res = await fetch(`/api/generate_sas_download?filename=${encodeURIComponent(fileName)}`);
+        const res = await fetch(`https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_download?filename=${encodeURIComponent(fileName)}`);
         const { url } = await res.json();
 
         const link = document.createElement("a");
