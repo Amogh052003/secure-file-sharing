@@ -1,0 +1,21 @@
+{
+  "routes": [
+    {
+      "route": "/upload.html",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/download.html",
+      "allowedRoles": ["authenticated"]
+    }
+  ],
+  "auth": {
+    "identityProviders": {
+      "github": {
+        "registration": {
+          "enabled": true
+        }
+      }
+    }
+  }
+}
