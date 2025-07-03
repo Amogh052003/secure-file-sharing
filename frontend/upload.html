@@ -1,33 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Upload File | Secure Sharing</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload File</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
       background: #f0f4f8;
-      padding: 2rem;
     }
 
     .container {
       max-width: 600px;
-      margin: auto;
+      margin: 3rem auto;
       background: white;
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
 
     h2 {
+      color: #333;
       margin-bottom: 1rem;
     }
 
-    input, button, textarea {
-      margin-top: 1rem;
+    input[type="file"],
+    button {
+      display: block;
       width: 100%;
-      padding: 10px;
+      padding: 0.8rem;
+      margin-top: 1rem;
+      font-size: 1rem;
     }
 
     #status {
@@ -36,68 +40,48 @@
       font-weight: bold;
     }
 
-    #linkBox {
-      display: none;
+    textarea {
       margin-top: 1rem;
-    }
-
-    #sasLink {
-      background: #f8f9fa;
-      border: 1px solid #ccc;
-      padding: 10px;
+      width: 100%;
+      height: 3rem;
       font-family: monospace;
-      font-size: 0.9rem;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
 
     .copy-btn {
       background: #007bff;
       color: white;
+      padding: 0.6rem;
+      border: none;
       margin-top: 0.5rem;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
       cursor: pointer;
     }
 
-    .copy-btn:hover {
-      background: #0056b3;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .logout-btn {
-      background: transparent;
+    .back-link {
+      display: inline-block;
+      margin-top: 2rem;
+      text-decoration: none;
       color: #007bff;
-      border: none;
-      cursor: pointer;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="top-bar">
-      <h2>Upload File Securely</h2>
-      <button class="logout-btn" onclick="logout()">Logout</button>
-    </div>
-
-    <p id="userStatus">Checking login status...</p>
-
+    <h2>Upload File</h2>
     <input type="file" id="fileInput" />
     <button onclick="uploadFile()">Upload</button>
-    <p id="status"></p>
-
-    <div id="linkBox">
-      <label>Shareable Download Link:</label>
-      <textarea id="sasLink" rows="3" readonly></textarea>
+    <div id="status"></div>
+    <div id="linkBox" style="display:none;">
+      <textarea id="sasLink" readonly></textarea>
       <button class="copy-btn" onclick="copyLink()">Copy Link</button>
     </div>
-
-    <a href="index.html">⬅ Back to Home</a>
+    <a class="back-link" href="index.html">⬅ Back to Home</a>
   </div>
 
   <script>
@@ -108,60 +92,42 @@
       const linkBox = document.getElementById("linkBox");
 
       if (!file) {
-        status.innerText = "Please select a file.";
+        status.textContent = "Please select a file.";
         return;
       }
 
-      const res = await fetch(`https://filesharingfuncapp-h6c6f8hbe9egbucc.centralindia-01.azurewebsites.net/api/generate_sas_upload?filename=${encodeURIComponent(file.name)}`);
-      const result = await res.json();
+      status.textContent = "Requesting upload URL...";
 
-      if (!result.url) {
-        status.innerText = "❌ Could not generate SAS URL.";
-        return;
-      }
+      try {
+        const res = await fetch(`/api/generate_sas_upload?filename=${encodeURIComponent(file.name)}`);
+        const data = await res.json();
 
-      const upload = await fetch(result.url, {
-        method: 'PUT',
-        headers: { 'x-ms-blob-type': 'BlockBlob', 'Content-Type': file.type },
-        body: file
-      });
+        const upload = await fetch(data.url, {
+          method: "PUT",
+          headers: {
+            "x-ms-blob-type": "BlockBlob",
+            "Content-Type": file.type
+          },
+          body: file
+        });
 
-      if (upload.ok) {
-        status.innerText = "✅ File uploaded successfully!";
-        sasLink.value = result.url;
+        if (!upload.ok) throw new Error("Upload failed");
+
+        status.textContent = "✅ Upload successful.";
+        sasLink.value = data.url;
         linkBox.style.display = "block";
-      } else {
-        status.innerText = `❌ Upload failed: ${upload.statusText}`;
+      } catch (err) {
+        status.textContent = `❌ ${err.message}`;
+        linkBox.style.display = "none";
       }
     }
 
     function copyLink() {
-      const textArea = document.getElementById("sasLink");
-      textArea.select();
+      const input = document.getElementById("sasLink");
+      input.select();
       document.execCommand("copy");
-      alert("Link copied!");
+      alert("🔗 Copied to clipboard!");
     }
-
-    async function checkLogin() {
-      const res = await fetch("/.auth/me");
-      const data = await res.json();
-      const status = document.getElementById("userStatus");
-
-      if (data.length > 0) {
-        status.innerText = "Logged in as: " + data[0].userDetails;
-      } else {
-        status.innerText = "Not authenticated. Redirecting to login...";
-        setTimeout(() => {
-          window.location.href = "/.auth/login/github?post_login_redirect_uri=/upload.html";
-        }, 1500);
-      }
-    }
-
-    function logout() {
-      window.location.href = "/.auth/logout?post_logout_redirect_uri=/";
-    }
-
-    checkLogin();
   </script>
 </body>
 </html>
