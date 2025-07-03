@@ -1,89 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Secure File Manager</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure File Manager</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #667eea, #764ba2);
-      height: 100vh;
       margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
       display: flex;
-      align-items: center;
       justify-content: center;
-      color: white;
+      align-items: center;
+      height: 100vh;
     }
 
     .card {
-      background: #fff;
-      color: #333;
+      background: white;
       padding: 3rem;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       text-align: center;
-      width: 90%;
       max-width: 400px;
+      width: 100%;
+      animation: fadeIn 0.8s ease;
     }
 
     h1 {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      color: #333;
     }
 
     .btn {
       display: block;
-      width: 100%;
-      margin: 0.5rem 0;
+      margin: 1rem 0;
       padding: 1rem;
+      width: 100%;
+      font-size: 1rem;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      color: white;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
-      background-color: #4facfe;
-      color: white;
       cursor: pointer;
     }
 
     .btn:hover {
-      background-color: #0056b3;
+      background: #007bff;
     }
 
-    .status {
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    #user {
       margin-top: 1rem;
       font-size: 0.9rem;
-      color: #555;
+      color: #444;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>Secure File Manager</h1>
-    <button class="btn" onclick="window.location.href='upload.html'">Upload a File</button>
-    <button class="btn" onclick="window.location.href='download.html'">Download a File</button>
-    <button class="btn" id="authBtn"></button>
-    <div class="status" id="userStatus">Checking login status...</div>
+    <h1>Welcome to Secure File Manager</h1>
+    <button class="btn" onclick="location.href='upload.html'">📤 Upload File</button>
+    <button class="btn" onclick="location.href='download.html'">📥 Manage & Download</button>
+    <div id="user">Not logged in</div>
   </div>
 
   <script>
-    async function checkAuth() {
-      const res = await fetch("/.auth/me");
-      const data = await res.json();
-      const statusDiv = document.getElementById("userStatus");
-      const authBtn = document.getElementById("authBtn");
-
-      if (data && data.length > 0) {
-        const user = data[0].userDetails;
-        statusDiv.textContent = "Logged in as: " + user;
-        authBtn.textContent = "Logout";
-        authBtn.onclick = () => window.location.href = "/.auth/logout?post_logout_redirect_uri=/";
-      } else {
-        statusDiv.textContent = "Not logged in.";
-        authBtn.textContent = "Login with GitHub";
-        authBtn.onclick = () => window.location.href = "/.auth/login/github?post_login_redirect_uri=/";
-      }
-    }
-
-    checkAuth();
+    fetch("/.auth/me")
+      .then(res => res.json())
+      .then(data => {
+        const user = data[0]?.userDetails || "Anonymous";
+        document.getElementById("user").textContent = `👤 Logged in as: ${user}`;
+      })
+      .catch(() => {
+        document.getElementById("user").textContent = "⚠️ Failed to fetch user info.";
+      });
   </script>
 </body>
 </html>
